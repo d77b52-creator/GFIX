@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sonder — Understand what's really happening</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FAF9F6;--bg-card:#fff;--bg-sub:#F3F0EA;
+  --tx:#1A1917;--tx2:#6B6860;--tx3:#A8A29A;
+  --ac:#9B7878;--acl:#F7EFEE;--acm:#C4A8A8;
+  --br:#E8E4DC;--brs:#C8C2B8;
+  --r:12px;--rl:20px;
+}
+html,body{background:var(--bg);color:var(--tx);font-family:'DM Sans',-apple-system,sans-serif;font-size:15px;line-height:1.6;min-height:100vh}
+.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.page{display:none;flex-direction:column;min-height:100vh}
+.page.on{display:flex}
+/* landing */
+.l-wrap{flex:1;display:flex;flex-direction:column;padding:52px 28px 36px}
+.logo{font-family:'Playfair Display',serif;font-size:21px;font-weight:400;letter-spacing:.5px;margin-bottom:50px;color:var(--tx)}
+.h-eye{font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ac);margin-bottom:14px}
+.h-title{font-family:'Playfair Display',serif;font-size:38px;font-weight:400;line-height:1.18;letter-spacing:-.6px;margin-bottom:16px}
+.h-title em{font-style:italic;color:var(--ac)}
+.h-sub{font-size:14px;color:var(--tx2);line-height:1.65;margin-bottom:38px;font-weight:300}
+.benefits{display:flex;flex-direction:column;gap:13px;margin-bottom:42px}
+.benefit{display:flex;gap:13px;align-items:flex-start}
+.b-dot{width:5px;height:5px;border-radius:50%;background:var(--ac);flex-shrink:0;margin-top:7px}
+.b-txt{font-size:13px;color:var(--tx2);line-height:1.55}
+.l-foot{padding:0 28px 40px}
+.note{text-align:center;font-size:11px;color:var(--tx3);margin-top:12px}
+/* buttons */
+.btn{display:block;width:100%;padding:15px 22px;border-radius:var(--r);font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;text-align:center;transition:all .18s;border:none}
+.btn-p{background:var(--tx);color:var(--bg)}
+.btn-p:hover{opacity:.82}
+.btn-g{background:transparent;color:var(--tx2);border:1px solid var(--br);margin-top:9px;font-size:13px}
+.btn-g:hover{border-color:var(--brs);color:var(--tx)}
+/* onboard */
+.ob-hdr{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.bk{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:13px;font-family:inherit;padding:4px 0}
+.step-pill{font-size:10px;color:var(--tx3);background:var(--bg-sub);padding:3px 9px;border-radius:20px}
+.prog{display:flex;gap:4px;padding:14px 24px 0}
+.ps{height:2px;flex:1;border-radius:1px;background:var(--br);transition:background .35s}
+.ps.on{background:var(--tx)}
+.ob-body{padding:28px 24px 20px;flex:1;display:flex;flex-direction:column}
+.ob-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:400;line-height:1.28;letter-spacing:-.3px;margin-bottom:7px}
+.ob-sub{font-size:13px;color:var(--tx2);margin-bottom:26px;font-weight:300;line-height:1.6}
+.fl{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+.fl-lbl{font-size:10px;font-weight:500;color:var(--tx2);letter-spacing:.07em;text-transform:uppercase}
+.opt{font-size:10px;color:var(--tx3);font-weight:300;letter-spacing:0;text-transform:none;margin-left:4px}
+.fi{background:var(--bg-card);border:1px solid var(--br);border-radius:var(--r);padding:13px 15px;font-size:14px;font-family:inherit;color:var(--tx);width:100%;outline:none;transition:border-color .18s;-webkit-appearance:none;appearance:none}
+.fi:focus{border-color:var(--brs)}
+.fi::placeholder{color:var(--tx3)}
+.gr{display:flex;gap:7px}
+.gb{flex:1;background:var(--bg-card);border:1px solid var(--br);border-radius:var(--r);padding:12px 6px;font-size:12px;font-family:inherit;color:var(--tx2);cursor:pointer;text-align:center;transition:all .18s}
+.gb.on{border-color:var(--tx);color:var(--tx);background:var(--bg-sub)}
+.cl{display:flex;flex-direction:column;gap:8px;margin-bottom:22px}
+.ci{background:var(--bg-card);border:1px solid var(--br);border-radius:var(--r);padding:13px 15px;font-size:13px;color:var(--tx);cursor:pointer;transition:all .18s;line-height:1.5}
+.ci:hover{border-color:var(--brs)}
+.ci.on{border-color:var(--ac);background:var(--acl);color:var(--ac)}
+.ob-foot{padding:10px 24px 36px}
+/* reveal */
+.rv-hero{padding:44px 28px 28px;background:var(--bg-card);border-bottom:1px solid var(--br)}
+.rv-eye{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);margin-bottom:16px}
+.rv-avs{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.av{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:500}
+.av-u{background:var(--acl);color:var(--ac)}
+.av-p{background:#EBF1F5;color:#5A7B8C}
+.av-sep{width:5px;height:5px;border-radius:50%;background:var(--brs)}
+.rv-names{font-family:'Playfair Display',serif;font-size:25px;font-weight:400;letter-spacing:-.3px}
+.rv-body{padding:22px 24px;display:flex;flex-direction:column;gap:13px;flex:1}
+.rc{background:var(--bg-card);border:1px solid var(--br);border-radius:var(--rl);padding:18px 20px}
+.rc-lbl{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);margin-bottom:8px}
+.rc-txt{font-size:13px;color:var(--tx);line-height:1.68}
+.rv-foot{padding:10px 24px 40px}
+/* decoder */
+.dc-hdr{padding:17px 20px 15px;border-bottom:1px solid var(--br);background:var(--bg-card);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.dc-logo{font-family:'Playfair Display',serif;font-size:18px;font-weight:400}
+.dc-sub{font-size:11px;color:var(--tx3);margin-top:2px}
+.dc-acts{display:flex;gap:7px}
+.da-btn{background:none;border:1px solid var(--br);border-radius:7px;padding:5px 10px;font-size:11px;font-family:inherit;color:var(--tx2);cursor:pointer;transition:all .15s}
+.da-btn:hover{border-color:var(--brs);color:var(--tx)}
+.msgs{flex:1;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+.msg{max-width:84%;padding:12px 15px;border-radius:17px;font-size:13px;line-height:1.58}
+.msg-ai{background:var(--bg-card);border:1px solid var(--br);color:var(--tx);align-self:flex-start;border-bottom-left-radius:4px}
+.msg-u{background:var(--tx);color:var(--bg);align-self:flex-end;border-bottom-right-radius:4px}
+.typing{background:var(--bg-card);border:1px solid var(--br);border-radius:17px;border-bottom-left-radius:4px;padding:13px 16px;align-self:flex-start}
+.tdots{display:flex;gap:4px;align-items:center}
+.td{width:6px;height:6px;border-radius:50%;background:var(--tx3);animation:td 1.3s infinite}
+.td:nth-child(2){animation-delay:.22s}.td:nth-child(3){animation-delay:.44s}
+@keyframes td{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
+.inp-area{padding:10px 13px 28px;background:var(--bg-card);border-top:1px solid var(--br);display:flex;gap:9px;align-items:flex-end;flex-shrink:0}
+.msg-ta{flex:1;background:var(--bg);border:1px solid var(--br);border-radius:13px;padding:11px 14px;font-size:13px;font-family:inherit;color:var(--tx);resize:none;outline:none;min-height:44px;max-height:120px;line-height:1.5;overflow-y:auto;transition:border-color .18s}
+.msg-ta:focus{border-color:var(--brs)}
+.msg-ta::placeholder{color:var(--tx3)}
+.sb{width:44px;height:44px;border-radius:12px;background:var(--tx);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s}
+.sb:hover{opacity:.8}.sb:disabled{opacity:.28;cursor:default}
+.sb svg{width:16px;height:16px;fill:var(--bg)}
+/* log */
+.lg-hdr{padding:18px 20px;border-bottom:1px solid var(--br);background:var(--bg-card);display:flex;align-items:center;gap:13px;flex-shrink:0}
+.lg-bk{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:20px;line-height:1;padding:0}
+.lg-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:400}
+.lg-ct{font-size:11px;color:var(--tx3);margin-top:2px}
+.lg-list{flex:1;overflow-y:auto;padding:13px}
+.lg-item{background:var(--bg-card);border:1px solid var(--br);border-radius:var(--r);padding:15px 17px;cursor:pointer;transition:all .18s;margin-bottom:9px}
+.lg-item:hover{border-color:var(--brs)}
+.lg-dt{font-size:10px;color:var(--tx3);margin-bottom:5px}
+.lg-pv{font-size:13px;color:var(--tx);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lg-mc{font-size:10px;color:var(--tx3);margin-top:5px}
+.lg-empty{text-align:center;padding:60px 28px;color:var(--tx2)}
+.lg-et{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:8px;color:var(--tx)}
+.lg-es{font-size:12px;color:var(--tx3)}
+.lg-foot{padding:12px 16px 36px;flex-shrink:0}
+/* toast */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:9px 18px;border-radius:20px;font-size:12px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- LANDING -->
+<div class="page on" id="p-land">
+  <div class="l-wrap">
+    <div class="logo">sonder</div>
+    <div class="h-eye">Relationship clarity</div>
+    <h1 class="h-title">Finally understand what's <em>really</em> happening.</h1>
+    <p class="h-sub">Decode the behaviors, signals, and patterns between you and the person you're with — grounded in psychology, not guesswork.</p>
+    <div class="benefits">
+      <div class="benefit"><div class="b-dot"></div><div class="b-txt">Understand what small actions actually signal about feelings and intentions</div></div>
+      <div class="benefit"><div class="b-dot"></div><div class="b-txt">The AI asks one clarifying question, then gives you a real specific answer</div></div>
+      <div class="benefit"><div class="b-dot"></div><div class="b-txt">Personalized to your dynamic — no generic advice, no labels</div></div>
+    </div>
+  </div>
+  <div class="l-foot">
+    <button class="btn btn-p" onclick="go('ob1')">Get started — it's free</button>
+    <div class="note">No account needed</div>
+  </div>
+</div>
+
+<!-- ONBOARD 1 -->
+<div class="page" id="p-ob1">
+  <div class="ob-hdr"><button class="bk" onclick="go('land')">← Back</button><div class="step-pill">1 of 4</div></div>
+  <div class="prog"><div class="ps on"></div><div class="ps"></div><div class="ps"></div><div class="ps"></div></div>
+  <div class="ob-body">
+    <h2 class="ob-title">Let's start with you</h2>
+    <p class="ob-sub">This helps us understand how you naturally show up in relationships.</p>
+    <div class="fl"><div class="fl-lbl">Your first name</div><input class="fi" type="text" id="u-name" placeholder="e.g. Sara" autocomplete="off"/></div>
+    <div class="fl"><div class="fl-lbl">Your date of birth</div><input class="fi" type="date" id="u-dob"/></div>
+    <div class="fl"><div class="fl-lbl">I identify as</div>
+      <div class="gr">
+        <button class="gb" onclick="pgender(this,'woman')">Woman</button>
+        <button class="gb" onclick="pgender(this,'man')">Man</button>
+        <button class="gb" onclick="pgender(this,'other')">Other</button>
+      </div>
+    </div>
+  </div>
+  <div class="ob-foot"><button class="btn btn-p" onclick="ob1()">Continue</button></div>
+</div>
+
+<!-- ONBOARD 2 -->
+<div class="page" id="p-ob2">
+  <div class="ob-hdr"><button class="bk" onclick="go('ob1')">← Back</button><div class="step-pill">2 of 4</div></div>
+  <div class="prog"><div class="ps on"></div><div class="ps on"></div><div class="ps"></div><div class="ps"></div></div>
+  <div class="ob-body">
+    <h2 class="ob-title">When something feels off, you usually...</h2>
+    <p class="ob-sub">Choose the one that feels most like you.</p>
+    <div class="cl" id="ua-list">
+      <div class="ci" onclick="pick(this,'ua','anxious')">Think about it quietly for a while before saying anything</div>
+      <div class="ci" onclick="pick(this,'ua','secure')">Bring it up fairly directly — I need to talk it through</div>
+      <div class="ci" onclick="pick(this,'ua','avoidant')">Pull back and need some space first</div>
+      <div class="ci" onclick="pick(this,'ua','dismissive')">Try to move past it without making it a big deal</div>
+    </div>
+  </div>
+  <div class="ob-foot"><button class="btn btn-p" onclick="ob2()">Continue</button></div>
+</div>
+
+<!-- ONBOARD 3 -->
+<div class="page" id="p-ob3">
+  <div class="ob-hdr"><button class="bk" onclick="go('ob2')">← Back</button><div class="step-pill">3 of 4</div></div>
+  <div class="prog"><div class="ps on"></div><div class="ps on"></div><div class="ps on"></div><div class="ps"></div></div>
+  <div class="ob-body">
+    <h2 class="ob-title">Now tell us about them</h2>
+    <p class="ob-sub">More context means more accurate reads.</p>
+    <div class="fl"><div class="fl-lbl">Their name</div><input class="fi" type="text" id="p-name" placeholder="e.g. Adam" autocomplete="off"/></div>
+    <div class="fl"><div class="fl-lbl">Their date of birth<span class="opt">(if you know it)</span></div><input class="fi" type="date" id="p-dob"/></div>
+    <div class="fl"><div class="fl-lbl">How long have you been seeing each other?</div>
+      <div class="cl" id="dur-list" style="margin-bottom:0">
+        <div class="ci" onclick="pick(this,'dur','less than 3 weeks')">Just started — less than 3 weeks</div>
+        <div class="ci" onclick="pick(this,'dur','3 weeks to 3 months')">A little while — 3 weeks to 3 months</div>
+        <div class="ci" onclick="pick(this,'dur','3 to 6 months')">A few months — 3 to 6 months</div>
+        <div class="ci" onclick="pick(this,'dur','over 6 months')">More established — over 6 months</div>
+      </div>
+    </div>
+  </div>
+  <div class="ob-foot"><button class="btn btn-p" onclick="ob3()">Continue</button></div>
+</div>
+
+<!-- ONBOARD 4 -->
+<div class="page" id="p-ob4">
+  <div class="ob-hdr"><button class="bk" onclick="go('ob3')">← Back</button><div class="step-pill">4 of 4</div></div>
+  <div class="prog"><div class="ps on"></div><div class="ps on"></div><div class="ps on"></div><div class="ps on"></div></div>
+  <div class="ob-body">
+    <h2 class="ob-title" id="ob4t">One last thing about them</h2>
+    <p class="ob-sub">When things get tense or difficult, how do they usually handle it?</p>
+    <div class="cl" id="pa-list">
+      <div class="ci" onclick="pick(this,'pa','avoidant')">Goes quiet and seems to need space</div>
+      <div class="ci" onclick="pick(this,'pa','secure')">Wants to talk it through fairly directly</div>
+      <div class="ci" onclick="pick(this,'pa','dismissive')">Tries to keep things light or moves past it quickly</div>
+      <div class="ci" onclick="pick(this,'pa','unknown')">Hard to say — I haven't seen this yet</div>
+    </div>
+  </div>
+  <div class="ob-foot"><button class="btn btn-p" onclick="ob4()">Build my profile</button></div>
+</div>
+
+<!-- REVEAL -->
+<div class="page" id="p-reveal">
+  <div class="rv-hero">
+    <div class="rv-eye">Your relationship profile</div>
+    <div class="rv-avs">
+      <div class="av av-u" id="rv-au">?</div>
+      <div class="av-sep"></div>
+      <div class="av av-p" id="rv-ap">?</div>
+    </div>
+    <div class="rv-names" id="rv-nm">You &amp; Them</div>
+  </div>
+  <div class="rv-body">
+    <div class="rc"><div class="rc-lbl">How you connect</div><div class="rc-txt" id="rv-dyn">Building your profile...</div></div>
+    <div class="rc"><div class="rc-lbl">What to watch for early on</div><div class="rc-txt" id="rv-watch">Building your profile...</div></div>
+    <div class="rc"><div class="rc-lbl">Your natural dynamic</div><div class="rc-txt" id="rv-str">Building your profile...</div></div>
+  </div>
+  <div class="rv-foot">
+    <button class="btn btn-p" onclick="go('dec')">Decode something now</button>
+    <button class="btn btn-g" onclick="go('dec')">Explore first</button>
+  </div>
+</div>
+
+<!-- DECODER -->
+<div class="page" id="p-dec">
+  <div class="dc-hdr">
+    <div><div class="dc-logo">sonder</div><div class="dc-sub" id="dc-sub">Your relationship decoder</div></div>
+    <div class="dc-acts">
+      <button class="da-btn" onclick="go('log')">Sessions</button>
+      <button class="da-btn" onclick="newSess()">New</button>
+    </div>
+  </div>
+  <div class="msgs" id="msgs"></div>
+  <div class="inp-area">
+    <textarea class="msg-ta" id="ui" placeholder="What happened? Describe it..." rows="1"
+      onkeydown="hkey(event)" oninput="aResize(this)"></textarea>
+    <button class="sb" id="sb" onclick="send()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- LOG -->
+<div class="page" id="p-log">
+  <div class="lg-hdr">
+    <button class="lg-bk" onclick="go('dec')">←</button>
+    <div><div class="lg-title">Past sessions</div><div class="lg-ct" id="lg-ct">Your decoded moments</div></div>
+  </div>
+  <div class="lg-list" id="lg-list"></div>
+  <div class="lg-foot"><button class="btn btn-p" onclick="newSess();go('dec')">Start new session</button></div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const S={user:{name:'',dob:'',gender:'',att:''},partner:{name:'',dob:'',att:'',dur:''},msgs:[],sessions:[],loading:false,sessId:null};
+const picks={};
+
+function go(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  document.getElementById('p-'+p).classList.add('on');
+  if(p==='dec')initDec();
+  if(p==='log')renderLog();
+  window.scrollTo(0,0);
+}
+
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
+
+function pgender(el,v){
+  el.closest('.gr').querySelectorAll('.gb').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');S.user.gender=v;
+}
+function pick(el,k,v){
+  el.closest('.cl').querySelectorAll('.ci').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  if(k==='ua')S.user.att=v;
+  if(k==='pa')S.partner.att=v;
+  if(k==='dur')S.partner.dur=v;
+}
+function ob1(){
+  const n=document.getElementById('u-name').value.trim();
+  if(!n){toast('Please enter your name');return;}
+  S.user.name=n;S.user.dob=document.getElementById('u-dob').value;go('ob2');
+}
+function ob2(){if(!S.user.att){toast('Please select one option');return;}go('ob3');}
+function ob3(){
+  const n=document.getElementById('p-name').value.trim();
+  if(!n){toast('Please enter their name');return;}
+  if(!S.partner.dur){toast('Please select how long you\'ve been seeing each other');return;}
+  S.partner.name=n;S.partner.dob=document.getElementById('p-dob').value;
+  document.getElementById('ob4t').textContent='One last thing about '+n;go('ob4');
+}
+function ob4(){if(!S.partner.att){toast('Please select one option');return;}buildReveal();go('reveal');}
+
+function sign(dob){
+  if(!dob)return null;
+  const d=new Date(dob),m=d.getMonth()+1,day=d.getDate();
+  if((m==3&&day>=21)||(m==4&&day<=19))return'aries';
+  if((m==4&&day>=20)||(m==5&&day<=20))return'taurus';
+  if((m==5&&day>=21)||(m==6&&day<=20))return'gemini';
+  if((m==6&&day>=21)||(m==7&&day<=22))return'cancer';
+  if((m==7&&day>=23)||(m==8&&day<=22))return'leo';
+  if((m==8&&day>=23)||(m==9&&day<=22))return'virgo';
+  if((m==9&&day>=23)||(m==10&&day<=22))return'libra';
+  if((m==10&&day>=23)||(m==11&&day<=21))return'scorpio';
+  if((m==11&&day>=22)||(m==12&&day<=21))return'sagittarius';
+  if((m==12&&day>=22)||(m==1&&day<=19))return'capricorn';
+  if((m==1&&day>=20)||(m==2&&day<=18))return'aquarius';
+  return'pisces';
+}
+const TR={
+  aries:{e:'direct and expressive',love:'through initiative and bold action',trust:'quickly but expects reciprocity',conflict:'confronts issues head-on'},
+  taurus:{e:'steady and internally reserved',love:'through consistency and quiet presence',trust:'slowly and deliberately',conflict:'holds onto things quietly'},
+  gemini:{e:'intellectually, through thought first',love:'through conversation and mental connection',trust:'cautiously',conflict:'talks a lot but may sidestep the core feeling'},
+  cancer:{e:'deeply and intuitively',love:'through nurturing',trust:'slowly — needs consistent safety',conflict:'withdraws emotionally when hurt'},
+  leo:{e:'expressively and fully',love:'through generosity and gestures',trust:'openly but needs loyalty',conflict:'needs to feel heard to move forward'},
+  virgo:{e:'analytically, thinking before feeling',love:'through practical care and service',trust:'carefully after observing patterns',conflict:'may critique instead of opening up'},
+  libra:{e:'through balance and harmony',love:'through partnership',trust:'gradually',conflict:'avoids confrontation to keep peace'},
+  scorpio:{e:'intensely and privately',love:'through loyalty and depth',trust:'very slowly',conflict:'tests trust before opening up'},
+  sagittarius:{e:'optimistically with forward energy',love:'through shared experiences',trust:'openly but needs space',conflict:'speaks directly then moves on'},
+  capricorn:{e:'in a controlled practical way',love:'through reliability',trust:'slowly through consistency',conflict:'handles things practically'},
+  aquarius:{e:'with intellectual detachment',love:'through shared values',trust:'through value alignment',conflict:'intellectualizes feelings'},
+  pisces:{e:'deeply and empathetically',love:'through emotional depth',trust:'intuitively',conflict:'absorbs others emotions'}
+};
+const AT={
+  anxious:{s:'processes things quietly before expressing',p:'may read into silences more than intended',st:'deeply emotionally aware'},
+  secure:{s:'communicates fairly openly and directly',p:'initiates conversations without much hesitation',st:'creates safety through directness'},
+  avoidant:{s:'needs time and space before engaging emotionally',p:'may pull back when things feel uncertain',st:'brings independence and calm'},
+  dismissive:{s:'tends to move past difficulties without dwelling',p:'may minimize emotional moments unintentionally',st:'brings resilience and lightness'},
+  unknown:{s:'still observing and building context',p:'not yet established — patterns will emerge',st:'entering with openness'}
+};
+
+function buildReveal(){
+  const u=S.user,p=S.partner;
+  const uT=sign(u.dob)?TR[sign(u.dob)]:null;
+  const pT=sign(p.dob)?TR[sign(p.dob)]:null;
+  const uA=AT[u.att]||AT.secure;
+  const pA=AT[p.att]||AT.unknown;
+  document.getElementById('rv-au').textContent=u.name.charAt(0).toUpperCase();
+  document.getElementById('rv-ap').textContent=p.name.charAt(0).toUpperCase();
+  document.getElementById('rv-nm').textContent=u.name+' & '+p.name;
+  let dyn=`You tend to ${uA.s}, while ${p.name} ${pA.p}. `;
+  if(uT&&pT)dyn+=`Emotionally you tend to be ${uT.e}, while ${p.name} tends to be ${pT.e}. Different rhythms — but very workable once you understand each other's pace.`;
+  else dyn+=`Understanding each other's natural rhythms early on will make everything clearer.`;
+  let watch='';
+  if(p.att==='avoidant')watch=`Watch how ${p.name} behaves when plans change or things feel uncertain. Distance in those moments doesn't always mean disinterest — it often means they need time to feel safe.`;
+  else if(p.att==='dismissive')watch=`Notice whether ${p.name} makes space for moments that matter to you, even quietly. That willingness tells you more than words do.`;
+  else if(p.att==='secure')watch=`Watch for consistency between what ${p.name} says and what they do. That alignment tells you everything about how genuine this is.`;
+  else watch=`Pay attention to how ${p.name} shows up when things are slightly inconvenient. Real investment becomes visible in those moments.`;
+  let str='';
+  if(uT&&pT)str=`Your ${uT.e} nature and ${p.name}'s ${pT.e} approach can complement each other — once you both see that different ways of expressing don't mean different levels of feeling.`;
+  else str=`You're at a stage where the dynamic is still forming — an advantage. You can understand each other before patterns become fixed.`;
+  document.getElementById('rv-dyn').textContent=dyn;
+  document.getElementById('rv-watch').textContent=watch;
+  document.getElementById('rv-str').textContent=str;
+}
+
+function initDec(){
+  document.getElementById('dc-sub').textContent=S.user.name&&S.partner.name?S.user.name+' & '+S.partner.name:'Your relationship decoder';
+  if(S.msgs.length===0){
+    const opener=S.partner.name?`What's on your mind about ${S.partner.name}? Tell me what happened — I'll help you make sense of it.`:`What happened? Tell me what you noticed — a behavior, something they said, a pattern.`;
+    addMsg('ai',opener);
+  }
+}
+
+function addMsg(role,text){
+  const c=document.getElementById('msgs');
+  const d=document.createElement('div');
+  d.className=role==='ai'?'msg msg-ai':'msg msg-u';
+  d.textContent=text;
+  c.appendChild(d);
+  c.scrollTop=c.scrollHeight;
+  S.msgs.push({role,text});
+}
+
+function showTyping(){
+  const c=document.getElementById('msgs');
+  const d=document.createElement('div');
+  d.id='typ';d.className='typing';
+  d.innerHTML='<div class="tdots"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+function removeTyping(){const e=document.getElementById('typ');if(e)e.remove();}
+
+function buildSysPrompt(){
+  const u=S.user,p=S.partner;
+  const uT=sign(u.dob)?TR[sign(u.dob)]:null;
+  const pT=sign(p.dob)?TR[sign(p.dob)]:null;
+  const uA=AT[u.att]||AT.secure;
+  const pA=AT[p.att]||AT.unknown;
+  return`You are Sonder — a warm, psychologically-grounded relationship decoder helping ${u.name||'the user'} understand their relationship with ${p.name||'their partner'}.
+
+PROFILE — ${(u.name||'User').toUpperCase()}:
+- They ${uA.s}
+- Tendency: they ${uA.p}
+- Strength: ${uA.st}
+${uT?`- Emotionally: ${uT.e}\n- Shows care: ${uT.love}\n- Builds trust: ${uT.trust}\n- Under pressure: ${uT.conflict}`:''}
+
+PROFILE — ${(p.name||'Partner').toUpperCase()}:
+- Together for: ${p.dur||'early stage'}
+- ${(p.name||'Partner')} ${pA.p}
+${pT?`- Emotionally: ${pT.e}\n- Shows care: ${pT.love}\n- Builds trust: ${pT.trust}\n- Under pressure: ${pT.conflict}`:''}
+
+RULES:
+1. When they first describe a situation, ask ONE warm natural clarifying question before interpreting. It must meaningfully change your read (pattern vs one-off, did something happen before, how long, etc.).
+2. After their answer, give a specific grounded 3-4 sentence interpretation. Reference their profiles subtly without naming the source.
+3. Never say "red flag," "green flag," "they like you," or give verdicts. Explain what behaviors signal and why.
+4. End every interpretation with one specific thing to notice going forward.
+5. Tone: warm, direct, calm — like a smart friend who studied psychology.
+6. NEVER mention zodiac, astrology, star signs, or birth charts.
+7. NEVER use "attachment style," "avoidant," "anxious," "secure," "dismissive" — use behavioral descriptions only.
+8. Factor in the duration (${p.dur||'early stage'}) — it changes everything.
+9. You have their profiles. Don't ask for info you already have. Ask only the ONE most useful clarifying question.
+10. After your clarifying question is answered, go straight to the interpretation. Don't ask another unless a completely new situation comes up.
+11. Be concise — specific and warm, not long.`;
+}
+
+async function send(){
+  const inp=document.getElementById('ui');
+  const text=inp.value.trim();
+  if(!text||S.loading)return;
+  inp.value='';inp.style.height='auto';
+  addMsg('user',text);
+  S.loading=true;document.getElementById('sb').disabled=true;showTyping();
+  const apiMsgs=S.msgs.filter((_,i)=>!(i===0&&S.msgs[0].role==='ai'))
+    .map(m=>({role:m.role==='ai'?'assistant':'user',content:m.text}));
+  try{
+    const res=await fetch('/api/proxy',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:buildSysPrompt(),messages:apiMsgs})
+    });
+    const data=await res.json();
+    const reply=data.content?.[0]?.text||'Something went wrong. Please try again.';
+    removeTyping();addMsg('ai',reply);
+    if(S.msgs.filter(m=>m.role==='user').length>=2)autoSave();
+  }catch(e){
+    removeTyping();addMsg('ai','Something went wrong. Please try again.');
+  }
+  S.loading=false;document.getElementById('sb').disabled=false;
+}
+
+function autoSave(){
+  const um=S.msgs.filter(m=>m.role==='user');if(!um.length)return;
+  const idx=S.sessions.findIndex(s=>s.id===S.sessId);
+  if(idx>-1){S.sessions[idx].msgs=[...S.msgs];S.sessions[idx].preview=um[0].text;}
+  else{S.sessId=Date.now();S.sessions.unshift({id:S.sessId,date:new Date(),preview:um[0].text,msgs:[...S.msgs]});}
+}
+
+function newSess(){
+  if(S.msgs.filter(m=>m.role==='user').length>0)autoSave();
+  S.msgs=[];S.sessId=null;
+  document.getElementById('msgs').innerHTML='';
+  initDec();
+}
+
+function renderLog(){
+  const list=document.getElementById('lg-list');
+  const ct=document.getElementById('lg-ct');
+  if(!S.sessions.length){
+    ct.textContent='No sessions yet';
+    list.innerHTML=`<div class="lg-empty"><div class="lg-et">Nothing here yet</div><div class="lg-es">Your decoded conversations will appear here.</div></div>`;
+    return;
+  }
+  ct.textContent=S.sessions.length+' session'+(S.sessions.length!==1?'s':'');
+  list.innerHTML=S.sessions.map((s,i)=>`
+    <div class="lg-item" onclick="loadSess(${i})">
+      <div class="lg-dt">${fmtD(s.date)}</div>
+      <div class="lg-pv">${s.preview}</div>
+      <div class="lg-mc">${s.msgs.length} messages</div>
+    </div>`).join('');
+}
+
+function loadSess(i){
+  const s=S.sessions[i];S.msgs=[...s.msgs];S.sessId=s.id;
+  const c=document.getElementById('msgs');c.innerHTML='';
+  s.msgs.forEach(m=>{const d=document.createElement('div');d.className=m.role==='ai'?'msg msg-ai':'msg msg-u';d.textContent=m.text;c.appendChild(d);});
+  go('dec');setTimeout(()=>c.scrollTop=c.scrollHeight,50);
+}
+
+function fmtD(d){return new Date(d).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});}
+function hkey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+function aResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+</script>
+</body>
+</html>
